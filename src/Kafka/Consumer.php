@@ -8,11 +8,9 @@ use RuntimeException;
 
 class Consumer
 {
-    public const CONFIG_GROUP_ID                      = 'group.id';
-    public const CONFIG_HEARTBEAT_INTERVAL_MS         = 'heartbeat.interval.ms';
-    public const CONFIG_AUTO_OFFSET_RESET             = 'auto.offset.reset';
-    public const CONFIG_ENABLE_AUTO_COMMIT            = 'enable.auto.commit';
-    public const CONFIG_PARTITION_ASSIGNMENT_STRATEGY = 'partition.assignment.strategy';
+    public const CONFIG_GROUP_ID = 'group.id';
+    public const CONFIG_HEARTBEAT_INTERVAL_MS = 'heartbeat.interval.ms';
+    public const CONFIG_AUTO_OFFSET_RESET = 'auto.offset.reset';
 
     /** @var KafkaConsumer */
     private KafkaConsumer $consumer;
@@ -22,19 +20,16 @@ class Consumer
 
     /**
      * @param GlobalConfig $globalConfig
-     * @param string       $groupName
-     * @param int          $timeout
-     * @param int          $heartbeat
+     * @param string $groupName
+     * @param int $timeout
+     * @param int $heartbeat
      */
     public function __construct(GlobalConfig $globalConfig, string $groupName, int $timeout, int $heartbeat)
     {
         $globalConfig->set(self::CONFIG_GROUP_ID, $groupName);
         $globalConfig->set(self::CONFIG_HEARTBEAT_INTERVAL_MS, "{$heartbeat}");
         $globalConfig->set(self::CONFIG_AUTO_OFFSET_RESET, 'earliest');
-        $globalConfig->set(self::CONFIG_ENABLE_AUTO_COMMIT, 'false');
-        $globalConfig->set(self::CONFIG_PARTITION_ASSIGNMENT_STRATEGY, 'roundrobin');
-
-        $this->timeout  = $timeout;
+        $this->timeout = $timeout;
         $this->consumer = new KafkaConsumer($globalConfig);
     }
 
@@ -56,6 +51,9 @@ class Consumer
                 return $message;
             case RD_KAFKA_RESP_ERR__PARTITION_EOF:
             case RD_KAFKA_RESP_ERR__TIMED_OUT:
+            case RD_KAFKA_RESP_ERR__UNKNOWN_PARTITION:
+            case RD_KAFKA_RESP_ERR__UNKNOWN_TOPIC:
+            case RD_KAFKA_RESP_ERR_UNKNOWN_TOPIC_OR_PART:
                 return null;
             default:
                 throw new RuntimeException($message->errstr(), $message->err);

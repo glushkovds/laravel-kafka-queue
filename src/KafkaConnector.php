@@ -11,11 +11,12 @@ class KafkaConnector implements ConnectorInterface
 {
     public const DEFAULT_TOPIC = 'default';
 
-    public const CONFIG_HOST             = 'host';
-    public const CONFIG_PORT             = 'port';
-    public const CONFIG_TOPIC            = 'queue';
-    public const CONFIG_HEARTBEAT        = 'heartbeat';
-    public const CONFIG_GROUP_NAME       = 'group_name';
+    public const CONFIG_BROKER_LIST = 'broker_list';
+    public const CONFIG_HOST = 'host';
+    public const CONFIG_PORT = 'port';
+    public const CONFIG_TOPIC = 'queue';
+    public const CONFIG_HEARTBEAT = 'heartbeat';
+    public const CONFIG_GROUP_NAME = 'group_name';
     public const CONFIG_PRODUCER_TIMEOUT = 'producer_timeout';
     public const CONFIG_CONSUMER_TIMEOUT = 'consumer_timeout';
 
@@ -64,9 +65,6 @@ class KafkaConnector implements ConnectorInterface
      */
     private function buildGlobalConfig(array $config): GlobalConfig
     {
-        return new GlobalConfig(
-            $config[self::CONFIG_HOST],
-            $config[self::CONFIG_PORT]
-        );
+        return new GlobalConfig($config[self::CONFIG_BROKER_LIST]);
     }
 }

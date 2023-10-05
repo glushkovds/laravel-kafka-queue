@@ -32,3 +32,5 @@ to application's your `app.php`.
     'consumer_timeout'   => 3 * 1000, //Consumer timeout in milliseconds
 ]
 ```
+
+https://arnaud.le-blanc.net/php-rdkafka-doc/phpdoc/index.html

@@ -14,10 +14,10 @@ class GlobalConfig extends Conf
      * @param string $host
      * @param int    $port
      */
-    public function __construct(string $host, int $port)
+    public function __construct(string $brokerList)
     {
         parent::__construct();
 
-        $this->set(self::CONFIG_BROKER_LIST, "{$host}:{$port}");
+        $this->set(self::CONFIG_BROKER_LIST, $brokerList);
     }
 }

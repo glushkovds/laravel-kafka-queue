@@ -21,44 +21,37 @@ class Producer
 
     /**
      * @param GlobalConfig $globalConfig
-     * @param int          $timeout
+     * @param int $timeout
      */
     public function __construct(GlobalConfig $globalConfig, int $timeout)
     {
-        $globalConfig->set(self::CONFIG_TRANSACTIONAL_ID, uniqid());
-
-        $this->timeout                 = $timeout;
+        $this->timeout = $timeout;
         $this->transactionsInitialized = false;
-        $this->producer                = new KafkaProducer($globalConfig);
+        $this->producer = new KafkaProducer($globalConfig);
     }
 
     /**
-     * @param string        $topic
-     * @param string        $payload
-     * @param int|null      $timestampSeconds
+     * @param string $topic
+     * @param string $payload
+     * @param int|null $timestampSeconds
      * @param callable|null $callback
      * @return void
      * @throws Throwable
      */
     public function produce(string $topic, string $payload, ?int $timestampSeconds, callable $callback = null): void
     {
-        $this->runInProducerTransaction(
-            function () use ($topic, $payload, $timestampSeconds, $callback) {
-                $this->producer->newTopic($topic)->producev(
-                    RD_KAFKA_PARTITION_UA,
-                    0,
-                    $payload,
-                    $this->getMessageId(),
-                    null,
-                    (int)(($timestampSeconds ?? now()->timestamp) * 1000)
-                );
-
-                if ($callback !== null) {
-                    $callback();
-                }
-            }
+        $this->producer->newTopic($topic)->producev(
+            RD_KAFKA_PARTITION_UA,
+            0,
+            $payload,
+            $this->getMessageId(),
+            null,
+            (int)(($timestampSeconds ?? now()->timestamp) * 1000)
         );
 
+        if ($callback !== null) {
+            $callback();
+        }
         $this->producer->poll(0);
     }
 
