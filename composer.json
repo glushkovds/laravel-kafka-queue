@@ -1,5 +1,5 @@
 {
-    "name": "lukaszaleckas/laravel-kafka-queue",
+    "name": "glushkovds/laravel-kafka-queue",
     "autoload": {
         "psr-4": {
             "LaravelKafka\\": "src/"
