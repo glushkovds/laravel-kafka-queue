@@ -26,12 +26,12 @@ class KafkaQueue extends Queue implements QueueInterface
     /**
      * @param Producer $producer
      * @param Consumer $consumer
-     * @param string   $defaultQueue
+     * @param string $defaultQueue
      */
     public function __construct(Producer $producer, Consumer $consumer, string $defaultQueue)
     {
-        $this->producer     = $producer;
-        $this->consumer     = $consumer;
+        $this->producer = $producer;
+        $this->consumer = $consumer;
         $this->defaultQueue = $defaultQueue;
     }
 
@@ -48,8 +48,8 @@ class KafkaQueue extends Queue implements QueueInterface
 
     /**
      * @param string|object $job
-     * @param mixed         $data
-     * @param string|null   $queue
+     * @param mixed $data
+     * @param string|null $queue
      * @return mixed|null
      * @throws Throwable
      */
@@ -64,9 +64,9 @@ class KafkaQueue extends Queue implements QueueInterface
     }
 
     /**
-     * @param string      $payload
+     * @param string $payload
      * @param string|null $queue
-     * @param array       $options
+     * @param array $options
      * @return mixed
      * @throws Throwable
      */
@@ -96,8 +96,34 @@ class KafkaQueue extends Queue implements QueueInterface
         return $this->pushRaw(
             $this->createPayload($job, $topic, $data),
             $topic,
-            ['available_at' => (string) $this->availableAt($delay)]
+            ['available_at' => (string)$this->availableAt($delay)]
         );
+    }
+
+    /**
+     * @param int $delay
+     * @param KafkaJob $kafkaJob
+     */
+    public function release($delay, $kafkaJob)
+    {
+        $body = $kafkaJob->payload();
+        /*
+         * Some jobs don't have the command set, so fall back to just sending it the job name string
+         */
+        if (isset($body['data']['command']) === true) {
+            $job = unserialize($body['data']['command']);
+        } else {
+            $job = $kafkaJob->getName();
+        }
+        $data = $body['data'];
+
+        $topic = $this->getTopic($kafkaJob->getQueue(), true);
+        $payload = $this->createPayload($job, $topic, $data);
+        $payloadAr = json_decode($payload, true);
+        $payloadAr['attempts'] = $kafkaJob->attempts();
+        $payload = json_encode($payloadAr, \JSON_UNESCAPED_UNICODE);
+        $options = $delay ? ['available_at' => (string)$this->availableAt($delay)] : [];
+        return $this->pushRaw($payload, $topic, $options);
     }
 
     /**
@@ -125,13 +151,13 @@ class KafkaQueue extends Queue implements QueueInterface
             return null;
         }
 
-        $job = new KafkaJob($this->container, $this, $message->payload, $message->topic_name, $message);
+        $job = new KafkaJob($this->container, $this, $message->payload, $message->topic_name, $message, $this->connectionName);
 
         return $this->ensureJobCanBeProcessed($job, $queue, $firstRequeuedJobId);
     }
 
     /**
-     * @param KafkaJob    $job
+     * @param KafkaJob $job
      * @param string|null $queue
      * @param string|null $firstRequeuedJobId
      * @return KafkaJob|null
@@ -159,7 +185,7 @@ class KafkaQueue extends Queue implements QueueInterface
 
     /**
      * @param string|null $queue
-     * @param KafkaJob    $job
+     * @param KafkaJob $job
      * @return void
      * @throws Throwable
      */
@@ -169,19 +195,17 @@ class KafkaQueue extends Queue implements QueueInterface
             $this->getTopic($queue, true),
             $job->getRawBody(),
             $job->getMessageTimestamp(),
-            fn () => $this->consumer->commitOffset()
+            fn() => $this->consumer->commitOffset()
         );
     }
 
     /**
      * @param string|null $queue
-     * @param bool        $isDelayed
+     * @param bool $isDelayed
      * @return string
      */
     private function getTopic(?string $queue, bool $isDelayed = false): string
     {
-        $queueName = $queue ?? $this->defaultQueue;
-
-        return $isDelayed ? $queueName . GlobalConfig::DELAYED_QUEUE_POSTFIX : $queueName;
+        return $queue ?? $this->defaultQueue;
     }
 }

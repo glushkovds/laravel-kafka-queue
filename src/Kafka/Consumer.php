@@ -41,7 +41,7 @@ class Consumer
     public function consume(string $topic): ?Message
     {
         if (!in_array($topic, $this->consumer->getSubscription())) {
-            $this->consumer->subscribe([$topic, $topic . GlobalConfig::DELAYED_QUEUE_POSTFIX]);
+            $this->consumer->subscribe([$topic]);
         }
 
         $message = $this->consumer->consume($this->timeout);

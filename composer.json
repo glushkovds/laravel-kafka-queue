@@ -10,11 +10,6 @@
             "LaravelKafka\\Tests\\": "tests/"
         }
     },
-    "config": {
-        "platform": {
-            "php": "7.4"
-        }
-    },
     "authors": [
         {
             "name": "lukaszaleckas",
@@ -22,10 +17,10 @@
         }
     ],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^8.0",
         "ext-rdkafka": "*",
         "ext-json": "*",
-        "laravel/framework": "*"
+        "laravel/framework": "^9"
     },
     "require-dev": {
         "mockery/mockery": "^1.5",

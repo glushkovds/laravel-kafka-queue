@@ -13,9 +13,9 @@ COPY . /app/
 
 RUN composer dump-autoload --optimize --classmap-authoritative
 
-FROM php:7.4-cli as base
+FROM php:8.2-cli as base
 
-ENV LIBRDKAFKA_VERSION v1.6.2
+ENV LIBRDKAFKA_VERSION v2.2.0
 
 RUN  apt-get update \
     && apt-get install -y --no-install-recommends build-essential git python \
@@ -23,7 +23,7 @@ RUN  apt-get update \
     && git clone \
         --branch ${LIBRDKAFKA_VERSION} \
         --depth 1 \
-        https://github.com/edenhill/librdkafka.git \
+        https://github.com/confluentinc/librdkafka.git \
     && cd librdkafka \
     && ./configure \
     && make \

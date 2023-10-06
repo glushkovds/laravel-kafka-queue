@@ -65,6 +65,6 @@ class KafkaConnector implements ConnectorInterface
      */
     private function buildGlobalConfig(array $config): GlobalConfig
     {
-        return new GlobalConfig($config[self::CONFIG_BROKER_LIST]);
+        return new GlobalConfig($config);
     }
 }
