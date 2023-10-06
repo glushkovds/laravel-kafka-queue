@@ -1,5 +1,15 @@
 {
   "name": "glushkovds/laravel-kafka-queue",
+  "description": "Laravel Kafka Queue Driver",
+  "keywords": [
+    "php",
+    "laravel",
+    "kafka",
+    "queue"
+  ],
+  "homepage": "https://github.com/glushkovds/laravel-kafka-queue",
+  "type": "library",
+  "license": "MIT",
   "autoload": {
     "psr-4": {
       "LaravelKafka\\": "src/"
