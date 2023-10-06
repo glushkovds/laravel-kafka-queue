@@ -39,7 +39,7 @@
     "php": "^8.0",
     "ext-rdkafka": "*",
     "ext-json": "*",
-    "laravel/framework": "~9"
+    "laravel/framework": ">=9"
   },
   "require-dev": {
     "mockery/mockery": "^1.5",
